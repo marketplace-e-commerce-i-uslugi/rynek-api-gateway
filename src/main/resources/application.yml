@@ -1,0 +1,122 @@
+# Routing z §2 dokumentu architektury. Ścieżki /internal/** nie są wystawiane.
+# Trasy z order: -1 to wyjątki: endpointy leżące pod prefiksem innego serwisu (zob. README, „Do rozstrzygnięcia”).
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+          - id: tiktok-integration-offer-video
+            uri: ${TIKTOK_INTEGRATION_SERVICE_URL:http://localhost:8085}
+            order: -1
+            predicates:
+              - Path=/api/v1/offers/*/video
+          - id: tiktok-integration-channel-videos
+            uri: ${TIKTOK_INTEGRATION_SERVICE_URL:http://localhost:8085}
+            order: -1
+            predicates:
+              - Path=/api/v1/channels/*/videos
+          - id: engagement-offers
+            uri: ${ENGAGEMENT_SERVICE_URL:http://localhost:8088}
+            order: -1
+            predicates:
+              - Path=/api/v1/offers/*/questions, /api/v1/offers/*/like
+          - id: engagement-channels
+            uri: ${ENGAGEMENT_SERVICE_URL:http://localhost:8088}
+            order: -1
+            predicates:
+              - Path=/api/v1/channels/*/reviews, /api/v1/channels/*/rating-summary
+          - id: engagement-orders
+            uri: ${ENGAGEMENT_SERVICE_URL:http://localhost:8088}
+            order: -1
+            predicates:
+              - Path=/api/v1/orders/*/review
+          - id: engagement-bookings
+            uri: ${ENGAGEMENT_SERVICE_URL:http://localhost:8088}
+            order: -1
+            predicates:
+              - Path=/api/v1/bookings/*/review
+          - id: channel-following
+            uri: ${CHANNEL_SERVICE_URL:http://localhost:8082}
+            order: -1
+            predicates:
+              - Path=/api/v1/users/me/following
+          - id: identity
+            uri: ${IDENTITY_SERVICE_URL:http://localhost:8081}
+            predicates:
+              - Path=/api/v1/auth/**, /api/v1/users/**
+          - id: channel
+            uri: ${CHANNEL_SERVICE_URL:http://localhost:8082}
+            predicates:
+              - Path=/api/v1/channels/**
+          - id: catalog
+            uri: ${CATALOG_SERVICE_URL:http://localhost:8083}
+            predicates:
+              - Path=/api/v1/offers/**, /api/v1/categories/**
+          - id: media
+            uri: ${MEDIA_SERVICE_URL:http://localhost:8084}
+            predicates:
+              - Path=/api/v1/media/**
+          - id: tiktok-integration
+            uri: ${TIKTOK_INTEGRATION_SERVICE_URL:http://localhost:8085}
+            predicates:
+              - Path=/api/v1/tiktok/**, /api/v1/videos/**
+          - id: feed
+            uri: ${FEED_SERVICE_URL:http://localhost:8086}
+            predicates:
+              - Path=/api/v1/feed/**
+          - id: search
+            uri: ${SEARCH_SERVICE_URL:http://localhost:8087}
+            predicates:
+              - Path=/api/v1/search/**
+          - id: engagement
+            uri: ${ENGAGEMENT_SERVICE_URL:http://localhost:8088}
+            predicates:
+              - Path=/api/v1/questions/**, /api/v1/reviews/**, /api/v1/reports/**
+          - id: chat
+            uri: ${CHAT_SERVICE_URL:http://localhost:8089}
+            predicates:
+              - Path=/api/v1/chats/**
+          - id: cart
+            uri: ${CART_SERVICE_URL:http://localhost:8090}
+            predicates:
+              - Path=/api/v1/cart/**
+          - id: order
+            uri: ${ORDER_SERVICE_URL:http://localhost:8091}
+            predicates:
+              - Path=/api/v1/orders/**, /api/v1/seller/orders/**
+          - id: payment
+            uri: ${PAYMENT_SERVICE_URL:http://localhost:8092}
+            predicates:
+              - Path=/api/v1/payments/**, /api/v1/seller/payouts/**, /api/v1/seller/balance, /api/v1/seller/payout-account
+          - id: booking
+            uri: ${BOOKING_SERVICE_URL:http://localhost:8093}
+            predicates:
+              - Path=/api/v1/services/**, /api/v1/bookings/**, /api/v1/seller/bookings/**
+          - id: shipping
+            uri: ${SHIPPING_SERVICE_URL:http://localhost:8094}
+            predicates:
+              - Path=/api/v1/shipping/**
+          - id: notification
+            uri: ${NOTIFICATION_SERVICE_URL:http://localhost:8095}
+            predicates:
+              - Path=/api/v1/notifications/**
+          - id: analytics
+            uri: ${ANALYTICS_SERVICE_URL:http://localhost:8096}
+            predicates:
+              - Path=/api/v1/analytics/**, /api/v1/seller/analytics/**
+          - id: chat-ws
+            uri: ${CHAT_SERVICE_WS_URL:ws://localhost:8089}
+            predicates:
+              - Path=/ws/chat/**
+
+server:
+  port: ${PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
