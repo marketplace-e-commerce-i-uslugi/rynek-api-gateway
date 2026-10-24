@@ -19,9 +19,12 @@ Adresy serwisów docelowych: zmienne `<SERWIS>_SERVICE_URL` (np. `CATALOG_SERVIC
 | `IDENTITY_SERVICE_URL` | `http://localhost:8081` | Także źródło kluczy: `GET {url}/internal/auth/jwks` |
 | `CORS_ALLOWED_ORIGINS` | `http://localhost:4200` | Lista originów rozdzielona przecinkami |
 | `REDIS_HOST`, `REDIS_PORT` | `localhost`, `6379` | Redis do limitów (`rynek-infra/local`) |
+| `REDIS_TIMEOUT` | `500ms` | Timeout połączenia i komendy Redis. Po nim limiter przepuszcza żądanie |
 | `RATE_LIMIT_REPLENISH_RATE`, `RATE_LIMIT_BURST_CAPACITY` | `20`, `40` | Żądań na sekundę i maksymalny zryw na klienta |
 
 Gdy serwis docelowy nie przyjmuje połączeń, gateway odpowiada `503 Service Unavailable` w formacie RFC 7807 (`DownstreamUnavailableHandler`) zamiast domyślnego 500. Frontend w trybie `auto` przechodzi wtedy na dane przykładowe.
+
+Błędy zgłaszane przez sam gateway, np. `404` dla ścieżki bez trasy (w tym `/internal/**`), też mają format RFC 7807 (`ResponseStatusProblemHandler`). Odpowiedzi serwisów docelowych przechodzą bez zmian.
 
 ## Zakres i endpointy
 
@@ -65,6 +68,7 @@ Gateway sprawdza tylko, czy użytkownik jest zalogowany. Role (`seller`, `admin`
 - CORS jest skonfigurowany w Spring Security, więc preflight `OPTIONS` przechodzi także przy włączonym JWT. Lokalnie frontend i tak używa proxy (`proxy.conf.json`).
 - Limity działają przez `RequestRateLimiter` z Redisem na wszystkich trasach. Klucz to `user:<sub>` dla zalogowanych, a dla pozostałych `ip:<adres>`. Po przekroczeniu gateway zwraca `429`.
 - Gdy Redis nie działa, żądania przechodzą bez limitu, a w logu przy każdym żądaniu pojawia się `ERROR ... Error calling rate limiter lua`. Redis nie wpływa na `/actuator/health`.
+- Dotyczy to też Redisa, który padł w trakcie pracy albo przestał odpowiadać. Po zerwaniu połączenia komendy są od razu odrzucane (`REJECT_COMMANDS`), a zawieszony Redis blokuje żądanie najwyżej na `REDIS_TIMEOUT`. Po powrocie Redisa limity działają znowu bez restartu gatewaya.
 
 ## Dane i zależności
 

@@ -3,6 +3,8 @@ package pl.rynek.apigateway;
 import java.net.InetSocketAddress;
 import java.security.Principal;
 
+import io.lettuce.core.ClientOptions;
+import org.springframework.boot.data.redis.autoconfigure.LettuceClientOptionsBuilderCustomizer;
 import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +17,15 @@ import reactor.core.publisher.Mono;
  */
 @Configuration
 public class RateLimitConfig {
+
+    /**
+     * Bez tego Lettuce po zerwaniu połączenia kolejkuje komendy do ponownego połączenia,
+     * a każde żądanie czeka na timeout komendy. Odrzucenie od razu = limiter przepuszcza żądanie bez opóźnienia.
+     */
+    @Bean
+    LettuceClientOptionsBuilderCustomizer rejectCommandsWhenRedisDisconnected() {
+        return options -> options.disconnectedBehavior(ClientOptions.DisconnectedBehavior.REJECT_COMMANDS);
+    }
 
     @Bean
     KeyResolver clientKeyResolver() {

@@ -121,6 +121,9 @@ spring:
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
+      # Domyślnie Lettuce czeka 60 s; Redis, który nie odpowiada, wstrzymywałby wtedy każde żądanie.
+      timeout: ${REDIS_TIMEOUT:500ms}
+      connect-timeout: ${REDIS_TIMEOUT:500ms}
 
 rynek:
   security:
