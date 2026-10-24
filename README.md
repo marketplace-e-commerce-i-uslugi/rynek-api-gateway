@@ -14,7 +14,7 @@ Adresy serwisów docelowych: zmienne `<SERWIS>_SERVICE_URL` (np. `CATALOG_SERVIC
 
 | Zmienna | Domyślnie | Znaczenie |
 |---|---|---|
-| `JWT_ENFORCE` | `false` | `true`: ścieżki niepubliczne wymagają JWT. Włącz, gdy identity-service wystawia tokeny |
+| `JWT_ENFORCE` | `false` | `true`: ścieżki niepubliczne wymagają JWT. Wymaga działającego identity-service (JWKS) |
 | `JWT_ISSUER` | `rynek-identity` | Oczekiwany `iss` w tokenie |
 | `IDENTITY_SERVICE_URL` | `http://localhost:8081` | Także źródło kluczy: `GET {url}/internal/auth/jwks` |
 | `CORS_ALLOWED_ORIGINS` | `http://localhost:4200` | Lista originów rozdzielona przecinkami |
@@ -60,8 +60,10 @@ Gateway sprawdza tylko, czy użytkownik jest zalogowany. Role (`seller`, `admin`
 - Token: JWT RS256 wystawiany przez identity-service, z claimami `iss=rynek-identity`, `sub` (id użytkownika), `roles` i `exp`. Klucze publiczne gateway pobiera z JWKS identity.
 - Publiczne endpointy (`pub` w README serwisów) są w `security/PublicEndpoints.java`. Dodając publiczny endpoint w serwisie, dopisz go także tam.
 - Brak tokenu albo zły token daje `401 problem+json` z nagłówkiem `WWW-Authenticate: Bearer`. Frontend wtedy odświeża token.
+- Na endpointach publicznych gateway nie sprawdza nagłówka `Authorization`: wygasły token nie daje 401 na stronie głównej ani na `POST /auth/refresh`. Nagłówek trafia do serwisu bez zmian.
 - `/ws/chat` jest przepuszczany bez tokenu, bo przeglądarka nie wysyła nagłówka przy WebSocket. Token przychodzi w ramce STOMP `CONNECT` i sprawdza go chat-service.
 - `JWT_ENFORCE=false` (domyślnie) przepuszcza wszystko, a przy starcie w logu pojawia się ostrzeżenie. Dzięki temu frontend w trybie `auto` dalej dostaje 501 i pokazuje dane przykładowe.
+- identity-service wystawia już prawdziwe tokeny (RS256, JWKS w `/internal/auth/jwks`). `JWT_ENFORCE=true` włączaj, gdy identity działa: bez JWKS gateway odrzuca każdy chroniony endpoint (`401`), a frontend wylogowuje użytkownika. Dlatego domyślnie zostaje `false`, żeby dało się pracować na samych mockach.
 
 ## CORS i limity zapytań
 

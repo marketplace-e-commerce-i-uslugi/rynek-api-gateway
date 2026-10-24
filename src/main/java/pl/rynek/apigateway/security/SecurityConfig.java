@@ -21,6 +21,9 @@ import org.springframework.security.oauth2.jwt.JwtClaimValidator;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
+import org.springframework.security.oauth2.server.resource.web.server.authentication.ServerBearerTokenAuthenticationConverter;
+import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.web.cors.CorsConfiguration;
@@ -28,6 +31,7 @@ import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
 import pl.rynek.apigateway.ProblemResponses;
+import reactor.core.publisher.Mono;
 
 /**
  * Uwierzytelnianie i CORS w gateway.
@@ -55,6 +59,7 @@ public class SecurityConfig {
                     exchanges.anyExchange().authenticated();
                 })
                 .oauth2ResourceServer(oauth2 -> oauth2
+                        .bearerTokenConverter(ignoreTokenOnPublicEndpoints())
                         .jwt(jwt -> {
                         })
                         .authenticationEntryPoint(unauthorized()))
@@ -114,10 +119,22 @@ public class SecurityConfig {
                 });
     }
 
+    /**
+     * Na endpointach publicznych nagłówek {@code Authorization} nie jest sprawdzany: wygasły token nie może dać 401
+     * na stronie głównej ani na {@code POST /auth/refresh}, który służy właśnie do jego odnowienia.
+     * Nagłówek i tak trafia do serwisu, który może go użyć (np. do personalizacji).
+     */
+    private static ServerAuthenticationConverter ignoreTokenOnPublicEndpoints() {
+        ServerBearerTokenAuthenticationConverter bearer = new ServerBearerTokenAuthenticationConverter();
+        ServerWebExchangeMatcher publicEndpoints = PublicEndpoints.matcher();
+        return exchange -> publicEndpoints.matches(exchange)
+                .flatMap(match -> match.isMatch() ? Mono.empty() : bearer.convert(exchange));
+    }
+
     private static ServerAuthenticationEntryPoint unauthorized() {
         return (exchange, ex) -> {
             exchange.getResponse().getHeaders().set(HttpHeaders.WWW_AUTHENTICATE, "Bearer");
-            return ProblemResponses.write(exchange, HttpStatus.UNAUTHORIZED, "Zaloguj się, aby kontynuować");
+            return ProblemResponses.write(exchange, HttpStatus.UNAUTHORIZED, "Zaloguj się, aby kontynuować.");
         };
     }
 }

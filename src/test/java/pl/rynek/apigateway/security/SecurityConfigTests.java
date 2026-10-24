@@ -100,6 +100,21 @@ class SecurityConfigTests {
         }
 
         @Test
+        void invalidOrExpiredTokenIsIgnoredOnPublicEndpoints() {
+            // Wygasły token nie może blokować publicznych ekranów ani jego własnego odnowienia (POST /auth/refresh).
+            client.get().uri("/api/v1/offers/o1").header(HttpHeaders.AUTHORIZATION, "Bearer zepsuty.token.xyz")
+                    .exchange().expectStatus().isEqualTo(503);
+            client.post().uri("/api/v1/auth/refresh").header(HttpHeaders.AUTHORIZATION, "Bearer " + token("rynek-identity", -300))
+                    .exchange().expectStatus().isEqualTo(503);
+        }
+
+        @Test
+        void invalidTokenOnProtectedEndpointIs401() {
+            client.get().uri("/api/v1/offers/mine").header(HttpHeaders.AUTHORIZATION, "Bearer zepsuty.token.xyz")
+                    .exchange().expectStatus().isUnauthorized();
+        }
+
+        @Test
         void sameShapeProtectedPathsNeedToken() {
             client.get().uri("/api/v1/offers/mine").exchange().expectStatus().isUnauthorized();
             client.post().uri("/api/v1/offers/o1/questions").exchange().expectStatus().isUnauthorized();

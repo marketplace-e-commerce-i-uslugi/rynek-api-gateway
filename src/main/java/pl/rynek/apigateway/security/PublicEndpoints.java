@@ -3,6 +3,11 @@ package pl.rynek.apigateway.security;
 import java.util.List;
 
 import org.springframework.http.HttpMethod;
+import org.springframework.security.web.server.util.matcher.AndServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.NegatedServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.OrServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 
 /**
  * Endpointy z kolumną „Dostęp” = {@code pub} w README serwisów. Gateway przepuszcza je bez tokenu;
@@ -75,5 +80,19 @@ final class PublicEndpoints {
             new Rule(HttpMethod.GET, "/actuator/info"));
 
     private PublicEndpoints() {
+    }
+
+    /** Publiczne według {@link #RULES}, z wyłączeniem {@link #PROTECTED_EXCEPTIONS}; te same reguły co w autoryzacji. */
+    static ServerWebExchangeMatcher matcher() {
+        return new AndServerWebExchangeMatcher(
+                new OrServerWebExchangeMatcher(RULES.stream().map(PublicEndpoints::toMatcher).toList()),
+                new NegatedServerWebExchangeMatcher(
+                        new OrServerWebExchangeMatcher(PROTECTED_EXCEPTIONS.stream().map(PublicEndpoints::toMatcher).toList())));
+    }
+
+    private static ServerWebExchangeMatcher toMatcher(Rule rule) {
+        return rule.method() == null
+                ? new PathPatternParserServerWebExchangeMatcher(rule.pattern())
+                : new PathPatternParserServerWebExchangeMatcher(rule.pattern(), rule.method());
     }
 }
