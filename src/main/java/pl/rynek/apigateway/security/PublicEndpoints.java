@@ -66,6 +66,9 @@ final class PublicEndpoints {
             new Rule(HttpMethod.GET, "/api/v1/channels/*/rating-summary"),
             // payment, shipping: webhooki dostawców (serwis weryfikuje podpis)
             new Rule(HttpMethod.POST, "/api/v1/payments/webhooks/*"),
+            // payment: strona symulatora dostawcy (tylko provider=sandbox); przeglądarka wchodzi na nią bez tokena
+            new Rule(HttpMethod.GET, "/api/v1/payments/sandbox/*"),
+            new Rule(HttpMethod.POST, "/api/v1/payments/sandbox/*"),
             new Rule(HttpMethod.GET, "/api/v1/shipping/methods"),
             new Rule(HttpMethod.GET, "/api/v1/shipping/pickup-points"),
             new Rule(HttpMethod.POST, "/api/v1/shipping/webhooks/*"),
