@@ -72,6 +72,9 @@ final class PublicEndpoints {
             new Rule(HttpMethod.GET, "/api/v1/shipping/methods"),
             new Rule(HttpMethod.GET, "/api/v1/shipping/pickup-points"),
             new Rule(HttpMethod.POST, "/api/v1/shipping/webhooks/*"),
+            // shipping: strona symulatora przewoźnika (tylko carrier=sandbox), jak strona symulatora płatności
+            new Rule(HttpMethod.GET, "/api/v1/shipping/sandbox/*"),
+            new Rule(HttpMethod.POST, "/api/v1/shipping/sandbox/*"),
             // booking
             new Rule(HttpMethod.GET, "/api/v1/services/*/slots"),
             new Rule(HttpMethod.GET, "/api/v1/services/*/next-slot"),

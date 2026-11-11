@@ -58,7 +58,7 @@ Zdrowie: `GET /actuator/health` na każdym serwisie.
 Gateway sprawdza tylko, czy użytkownik jest zalogowany. Role (`seller`, `admin`) i własność zasobu sprawdza serwis, który też waliduje JWT. Nagłówek `Authorization` trafia do serwisu bez zmian.
 
 - Token: JWT RS256 wystawiany przez identity-service, z claimami `iss=rynek-identity`, `sub` (id użytkownika), `roles` i `exp`. Klucze publiczne gateway pobiera z JWKS identity.
-- Publiczne endpointy (`pub` w README serwisów) są w `security/PublicEndpoints.java`. Dodając publiczny endpoint w serwisie, dopisz go także tam. Należy do nich strona symulatora płatności `/api/v1/payments/sandbox/*`, na którą przeglądarka wchodzi bez tokena.
+- Publiczne endpointy (`pub` w README serwisów) są w `security/PublicEndpoints.java`. Dodając publiczny endpoint w serwisie, dopisz go także tam. Należą do nich strony symulatorów `/api/v1/payments/sandbox/*` i `/api/v1/shipping/sandbox/*`, na które przeglądarka wchodzi bez tokena.
 - Brak tokenu albo zły token daje `401 problem+json` z nagłówkiem `WWW-Authenticate: Bearer`. Frontend wtedy odświeża token.
 - Na endpointach publicznych gateway nie sprawdza nagłówka `Authorization`: wygasły token nie daje 401 na stronie głównej ani na `POST /auth/refresh`. Nagłówek trafia do serwisu bez zmian.
 - `/ws/chat` jest przepuszczany bez tokenu, bo przeglądarka nie wysyła nagłówka przy WebSocket. Token przychodzi w ramce STOMP `CONNECT` i sprawdza go chat-service.
