@@ -49,6 +49,9 @@ final class PublicEndpoints {
             new Rule(HttpMethod.GET, "/api/v1/videos/*"),
             new Rule(HttpMethod.GET, "/api/v1/offers/*/video"),
             new Rule(HttpMethod.GET, "/api/v1/channels/*/videos"),
+            // tiktok: strony symulatora (zgoda OAuth, odtwarzacz w iframe, okładki; tylko provider=sandbox), jak strona symulatora płatności
+            new Rule(HttpMethod.GET, "/api/v1/tiktok/sandbox/**"),
+            new Rule(HttpMethod.POST, "/api/v1/tiktok/sandbox/**"),
             // feed
             new Rule(HttpMethod.GET, "/api/v1/feed/home"),
             new Rule(HttpMethod.GET, "/api/v1/feed/chips"),
