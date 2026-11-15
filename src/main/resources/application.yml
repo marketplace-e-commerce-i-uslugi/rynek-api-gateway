@@ -80,7 +80,7 @@ spring:
           - id: engagement
             uri: ${ENGAGEMENT_SERVICE_URL:http://localhost:8088}
             predicates:
-              - Path=/api/v1/questions/**, /api/v1/reviews/**, /api/v1/reports/**
+              - Path=/api/v1/questions/**, /api/v1/reviews/**, /api/v1/reports/**, /api/v1/admin/**
           - id: chat
             uri: ${CHAT_SERVICE_URL:http://localhost:8089}
             predicates:

@@ -29,6 +29,8 @@ class RoutingTests {
             "/api/v1/offers/o1/questions,           engagement-offers",
             "/api/v1/offers/o1/like,                engagement-offers",
             "/api/v1/channels/c1/reviews,           engagement-channels",
+            "/api/v1/admin/reports,                 engagement",
+            "/api/v1/admin/reports/r1/resolve,      engagement",
             "/api/v1/channels/c1/rating-summary,    engagement-channels",
             "/api/v1/orders/o1/review,              engagement-orders",
             "/api/v1/bookings/b1/review,            engagement-bookings",
