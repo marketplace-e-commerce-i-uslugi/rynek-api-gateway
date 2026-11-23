@@ -57,6 +57,11 @@ spring:
             uri: ${CHANNEL_SERVICE_URL:http://localhost:8082}
             predicates:
               - Path=/api/v1/channels/**
+          - id: channel-admin-verifications
+            uri: ${CHANNEL_SERVICE_URL:http://localhost:8082}
+            order: -1
+            predicates:
+              - Path=/api/v1/admin/channel-verifications/**, /api/v1/admin/channel-verifications
           - id: catalog
             uri: ${CATALOG_SERVICE_URL:http://localhost:8083}
             predicates:
@@ -96,7 +101,7 @@ spring:
           - id: payment
             uri: ${PAYMENT_SERVICE_URL:http://localhost:8092}
             predicates:
-              - Path=/api/v1/payments/**, /api/v1/seller/payouts/**, /api/v1/seller/balance, /api/v1/seller/payout-account
+              - Path=/api/v1/payments/**, /api/v1/seller/payouts/**, /api/v1/seller/balance, /api/v1/seller/earnings, /api/v1/seller/payout-account
           - id: booking
             uri: ${BOOKING_SERVICE_URL:http://localhost:8093}
             predicates:
