@@ -1,0 +1,23 @@
+# Szablon: skopiuj ten plik do KAŻDEGO repozytorium Rynku (oprócz rynek-platform) jako
+#   .github/workflows/notify-platform.yml
+# Po każdym pushu do main zgłasza zmianę do rynek-platform, które podbije submoduł i przebuduje obrazy.
+# Wymaga sekretu organizacji PLATFORM_DISPATCH_TOKEN (opis w README rynek-platform).
+name: Powiadom rynek-platform
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Zgłoś zmianę
+        env:
+          TOKEN: ${{ secrets.PLATFORM_DISPATCH_TOKEN }}
+        run: |
+          curl -fsS -X POST \
+            -H "Authorization: Bearer $TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository_owner }}/rynek-platform/dispatches" \
+            -d '{"event_type":"submodule-updated","client_payload":{"repo":"${{ github.event.repository.name }}"}}'
